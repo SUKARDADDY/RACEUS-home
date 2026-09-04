@@ -1,0 +1,160 @@
+# Deploy the library to Cloudflare Pages.
+#
+# SCOPE: this uploads the static files in public/ to the Pages project
+# `raceus`, which serves https://raceus.co.il and https://www.raceus.co.il.
+# There is no build step and no dependency install. index.html, app.js,
+# catalog.json and two woff2 files are the whole site.
+#
+# The project already exists and already owns both custom domains, so this
+# workflow never creates it. A push to main moves the apex.
+#
+# WHEN IT RUNS
+#   push to main  → deploys to the production branch, so the custom domain
+#                   picks it up.
+#   pull_request  → deploys to a `pr-N` branch, which Pages serves as a preview
+#                   URL. The preview is a rehearsal; it never touches the
+#                   custom domain.
+#   manually      → Actions tab, "Run workflow" (workflow_dispatch). Only a run
+#                   from main deploys production; from any other ref it deploys
+#                   a preview branch named after the ref.
+#
+# Production is refs/heads/main and nothing else. A pull request, a manual run
+# from a feature branch and a tag all land on a preview branch, so the apex can
+# only move by way of main.
+#
+# Two deploys of the same project must never overlap. Pages keeps the last
+# upload to finish, not the last one started, so a race can leave the domain on
+# an older commit while both runs report green. The concurrency group below
+# queues them instead, and never cancels an in-flight deploy.
+#
+# REQUIRED REPO SECRETS (Settings → Secrets and variables → Actions):
+#   CLOUDFLARE_API_TOKEN   Cloudflare API token with permission
+#                          Account → Cloudflare Pages: Edit, with the resource
+#                          scoped to the account below. Mint it at My Profile →
+#                          API Tokens → Create custom token. Nothing narrower
+#                          can create or deploy a Pages project. If the token is
+#                          wrong, the preflight step below fails and names this
+#                          permission.
+#   CLOUDFLARE_ACCOUNT_ID  The account id from the Cloudflare dashboard. Kept as
+#                          a secret rather than hardcoded so the same workflow
+#                          works if the account ever changes.
+#
+# Neither secret can write DNS or Cloudflare Access. Adding the custom domain
+# to the Pages project is a one-time dashboard action, done by hand.
+
+name: Deploy to Cloudflare Pages
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch: {}
+
+concurrency:
+  group: pages-raceus
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    name: wrangler pages deploy
+    # A pull request from a fork cannot read the secrets, so the preflight would
+    # fail on every one of them. Skip instead, and let the maintainer's own
+    # branch produce the preview.
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install Wrangler
+        run: npm install -g wrangler@4.114.0
+
+      - name: Validate Cloudflare access
+        shell: bash
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          set -euo pipefail
+          echo "Checking the Cloudflare API token can list Pages projects..."
+          http_code=$(curl -sS -o /tmp/cf_projects.json -w "%{http_code}" \
+            -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \
+            -H "Content-Type: application/json" \
+            "https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/pages/projects")
+          if [ "$http_code" != "200" ]; then
+            echo "::error::Cloudflare API token cannot access Pages projects (HTTP $http_code)."
+            echo "Required permission: Account -> Cloudflare Pages: Edit, scoped to account ${CLOUDFLARE_ACCOUNT_ID}."
+            echo "Mint it at My Profile -> API Tokens -> Create custom token, then update the"
+            echo "repository secret CLOUDFLARE_API_TOKEN and re-run this workflow."
+            echo "Cloudflare API response:"
+            cat /tmp/cf_projects.json
+            exit 1
+          fi
+          echo "Token validation OK."
+
+      - name: Ensure the Pages project exists with main as its production branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          # Listing the projects only proves the token can read. Assert the
+          # deploy target itself, from the list the preflight above already
+          # fetched. This workflow never creates the project: it owns the
+          # raceus.co.il custom domains, so it is created once by hand.
+          production_branch=$(jq -r '.result[] | select(.name == "raceus") | .production_branch' /tmp/cf_projects.json)
+          if [ -z "$production_branch" ]; then
+            echo "::error::Pages project 'raceus' does not exist in this account."
+            echo "Create it once in the Cloudflare dashboard with production branch main,"
+            echo "attach the raceus.co.il custom domains, then re-run."
+            exit 1
+          fi
+
+          # Verify rather than assume: `--branch=main` reaches production only
+          # if main really is this project's production branch.
+          if [ "$production_branch" != "main" ]; then
+            echo "::error::Pages project 'raceus' has production branch '$production_branch', expected 'main'."
+            echo "A deploy to --branch=main would be published as a preview and the custom"
+            echo "domain would keep serving an older build. Fix the production branch in"
+            echo "Settings -> Builds & deployments for the project, then re-run."
+            exit 1
+          fi
+          echo "Pages project 'raceus' verified, production branch main."
+
+      - name: Stamp the build SHA into the HTML
+        run: |
+          set -euo pipefail
+          sed -i "s/__BUILD_SHA__/${GITHUB_SHA}/g" public/index.html
+          grep -q "${GITHUB_SHA}" public/index.html
+
+      - name: Deploy to Cloudflare Pages
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          set -euo pipefail
+          # Only refs/heads/main may ever produce --branch=main. Everything
+          # else, including a manual run from a feature branch, is a preview.
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            BRANCH="pr-${{ github.event.number }}"
+          elif [ "$GITHUB_REF" = "refs/heads/main" ]; then
+            BRANCH="main"
+          else
+            BRANCH="${GITHUB_REF_NAME//\//-}"
+          fi
+          # The Pages API rejects a non-UTF8 commit subject, so strip anything
+          # that is not printable or whitespace and cap the length.
+          COMMIT_MSG=$(git log -1 --pretty=%s | tr -cd '[:print:][:space:]' | head -c 200)
+          echo "Deploying to branch ${BRANCH}"
+          wrangler pages deploy public \
+            --project-name=raceus \
+            --branch="$BRANCH" \
+            --commit-hash="$GITHUB_SHA" \
+            --commit-message="$COMMIT_MSG" \
+            --commit-dirty=true

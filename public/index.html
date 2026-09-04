@@ -1,0 +1,410 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>raceus.co.il library</title>
+<meta name="description" content="Every project and service under raceus.co.il, one card each. What is open, what is behind Cloudflare Access, and what is described but not published.">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<meta name="theme-color" content="#0b0c0e">
+<meta name="build-sha" content="__BUILD_SHA__">
+<style>
+  /* ─────────────────────────────────────────────────────────
+     GRAPHITE — a silver print, not a grey UI.
+     Cool shadows, warm highlights, real grain.
+     Exposure is the status channel: bright = you can open it.
+     ───────────────────────────────────────────────────────── */
+
+  /* Self-hosted, latin subset only. Archivo is one variable file carrying the
+     whole weight and width range; Azeret Mono's latin file covers 300-500.
+     Both SIL Open Font License 1.1 — see /fonts/OFL.txt. */
+  @font-face {
+    font-family: 'Archivo';
+    font-style: normal;
+    font-weight: 400 800;
+    font-stretch: 62% 125%;
+    font-display: swap;
+    src: url('/fonts/archivo-latin.woff2') format('woff2');
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+  }
+  @font-face {
+    font-family: 'Azeret Mono';
+    font-style: normal;
+    font-weight: 300 500;
+    font-display: swap;
+    src: url('/fonts/azeret-mono-latin.woff2') format('woff2');
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+  }
+
+  :root {
+    --pitch:  #08090b;
+    --carbon: #0b0c0e;
+    --slate:  #131519;
+    --slate2: #191c21;
+    --edge:   #202329;
+    --edge2:  #2f333b;
+    --chalk:  #e9e7e2;   /* warm, like paper */
+    --pewter: #9aa0a8;   /* cool */
+    --ash:    #6a7078;
+    --dust:   #464b53;
+
+    --display: 'Archivo', ui-sans-serif, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    --mono:    'Azeret Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+    --rail: 68px;
+    --pad:  2rem;
+
+    /* film grain */
+    --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-text-size-adjust: 100%; background: var(--carbon); }
+  body {
+    background: var(--carbon);
+    color: var(--chalk);
+    font-family: var(--display);
+    font-size: 15px;
+    line-height: 1.5;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+  /* the print's own grain, over everything */
+  body::after {
+    content: ""; position: fixed; inset: 0; z-index: 200; pointer-events: none;
+    background-image: var(--grain); opacity: .028;
+  }
+  a { color: inherit; text-decoration: none; }
+  button, input { font: inherit; color: inherit; }
+  ::selection { background: var(--chalk); color: var(--pitch); }
+  :focus-visible { outline: 2px solid var(--chalk); outline-offset: 3px; border-radius: 3px; }
+  [hidden] { display: none !important; }
+  .sr-only {
+    position: absolute; width: 1px; height: 1px; overflow: hidden;
+    clip-path: inset(50%); white-space: nowrap;
+  }
+
+  /* ── rail ──────────────────────────────────────────────── */
+  .rail {
+    position: fixed; inset-block: 0; inset-inline-start: 0; width: var(--rail); z-index: 80;
+    background: var(--pitch); border-inline-end: 1px solid var(--edge);
+    display: flex; flex-direction: column; align-items: center;
+    padding: 1.15rem 0 1.15rem; gap: .2rem;
+  }
+  .railbtn {
+    position: relative; width: 40px; height: 40px; border: 0; border-radius: 3px;
+    background: none; color: var(--dust); cursor: pointer;
+    display: grid; place-items: center; transition: color .14s;
+  }
+  .railbtn svg { width: 19px; height: 19px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+  .railbtn:hover { color: var(--chalk); }
+  .railbtn[aria-current="page"] { color: var(--chalk); }
+  .railbtn[aria-current="page"]::before {
+    content: ""; position: absolute; inset-inline-start: -14px; top: 50%; transform: translateY(-50%);
+    width: 2px; height: 22px; background: var(--chalk);
+  }
+  .railbtn .tip {
+    position: absolute; inset-inline-start: 48px; white-space: nowrap; z-index: 90;
+    background: var(--slate2); border: 1px solid var(--edge2);
+    padding: .2rem .5rem; font-family: var(--mono); font-size: 10.5px;
+    letter-spacing: .06em; color: var(--chalk);
+    opacity: 0; pointer-events: none; transition: opacity .13s;
+  }
+  .railbtn:hover .tip, .railbtn:focus-visible .tip { opacity: 1; }
+
+  .shell { padding-inline-start: var(--rail); padding-bottom: 4rem; }
+
+  /* ── search ────────────────────────────────────────────── */
+  .bar { padding: 1.6rem var(--pad) .4rem; }
+  .search { position: relative; max-width: 420px; }
+  .search input {
+    width: 100%; background: transparent; color: var(--chalk);
+    border: 0; border-bottom: 1px solid var(--edge2); border-radius: 0;
+    padding: .5rem 2rem .5rem 0;
+    font-family: var(--mono); font-size: 13px; letter-spacing: .02em; outline: none;
+    transition: border-color .16s;
+  }
+  .search input::placeholder { color: var(--dust); }
+  .search input:focus { border-color: var(--chalk); outline: none; }
+  /* the underline is the resting affordance; keyboard focus still gets the
+     same chalk ring as everything else, which the rule above would suppress */
+  #q:focus-visible { outline: 2px solid var(--chalk); outline-offset: 3px; }
+  .search .hint {
+    position: absolute; inset-inline-end: 0; top: 50%; transform: translateY(-50%);
+    font-family: var(--mono); font-size: 10px; color: var(--dust); pointer-events: none;
+  }
+  .search .clr {
+    position: absolute; inset-inline-end: 0; top: 50%; transform: translateY(-50%);
+    background: none; border: 0; color: var(--pewter); cursor: pointer; font-size: 13px;
+  }
+  .search input:focus ~ .hint { opacity: 0; }
+
+  /* ── section head: label, rule, count ──────────────────── */
+  .head {
+    display: flex; align-items: center; gap: 1rem;
+    padding: 0 var(--pad); margin: 2.4rem 0 1rem;
+  }
+  .head h2 {
+    font-family: var(--display); font-size: 12.5px; font-weight: 700;
+    font-stretch: 125%; letter-spacing: .2em; text-transform: uppercase;
+    color: var(--chalk); flex: none;
+  }
+  .head .rule { flex: 1; height: 1px; background: var(--edge); }
+  .head .count {
+    font-family: var(--mono); font-size: 11px; color: var(--ash); flex: none;
+    letter-spacing: .04em;
+  }
+  .head .count b { color: var(--pewter); font-weight: 400; }
+  .head .more {
+    background: none; border: 0; cursor: pointer; flex: none;
+    font-family: var(--mono); font-size: 11px; color: var(--ash); letter-spacing: .04em;
+  }
+  .head .more:hover { color: var(--chalk); }
+
+  /* ── launch strip ──────────────────────────────────────── */
+  .launch {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(206px, 1fr));
+    margin: 0 var(--pad); border-block: 1px solid var(--edge);
+  }
+  .lt {
+    position: relative; display: block; background: transparent;
+    padding: .95rem 1rem 1rem; cursor: pointer; text-align: start;
+    border: 0; border-inline-end: 1px solid var(--edge); width: 100%;
+    transition: background .16s;
+  }
+  .lt:hover, .lt:focus-visible { background: var(--slate); }
+  .lt .n {
+    display: inline-flex; align-items: center; gap: .4rem;
+    font-family: var(--mono); font-size: 10.5px; color: var(--dust);
+    letter-spacing: .1em; transition: color .16s;
+  }
+  .lt:hover .n { color: var(--chalk); }
+  .lt .n svg { display: block; width: 11px; height: 11px; }
+  .lt .nm {
+    display: block; margin-top: .5rem; font-size: 15px; font-weight: 600;
+    letter-spacing: -.005em; color: var(--chalk);
+  }
+  .lt .hs {
+    display: block; margin-top: .15rem; font-family: var(--mono); font-size: 10.5px;
+    color: var(--ash); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .lt .go {
+    position: absolute; top: .9rem; inset-inline-end: 1rem;
+    font-family: var(--mono); font-size: 12px; color: var(--dust);
+    transition: transform .18s, color .16s;
+  }
+  .lt:hover .go { color: var(--chalk); transform: translate(2px, -2px); }
+
+  /* ── rows ──────────────────────────────────────────────── */
+  .row { position: relative; }
+  .strip {
+    display: flex; gap: .85rem; overflow-x: auto; overflow-y: hidden;
+    padding: .3rem var(--pad) 1.4rem;
+    scroll-snap-type: x proximity; scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+  .strip::-webkit-scrollbar { display: none; }
+  .nudge {
+    position: absolute; top: 40%; transform: translateY(-50%); z-index: 20;
+    width: 30px; height: 68px; cursor: pointer;
+    border: 1px solid var(--edge2); background: var(--pitch);
+    color: var(--pewter); display: grid; place-items: center;
+    font-family: var(--mono); font-size: 13px;
+    opacity: 0; transition: opacity .15s, color .15s;
+  }
+  .row:hover .nudge, .nudge:focus-visible { opacity: 1; }
+  .nudge:hover { color: var(--chalk); }
+  .nudge.l { inset-inline-start: calc(var(--pad) - 34px); }
+  .nudge.r { inset-inline-end: calc(var(--pad) - 34px); }
+  @media (hover: none) { .nudge { display: none; } }
+
+  /* ── frame (poster) ────────────────────────────────────── */
+  .fr { flex: none; width: 152px; scroll-snap-align: start; }
+  .fw { position: relative; }
+  .frame {
+    position: relative; display: block; width: 100%;
+    aspect-ratio: 2 / 3; overflow: hidden; cursor: pointer;
+    border: 1px solid var(--edge); background: var(--slate);
+    transition: border-color .18s, filter .18s;
+  }
+  /* the focus ring itself comes from the global :focus-visible rule */
+  .fr:hover .frame, .frame:focus-visible { border-color: var(--edge2); filter: brightness(1.16); }
+  .frame .em { position: absolute; inset: 0; }
+  .frame .gr {
+    position: absolute; inset: 0; background-image: var(--grain);
+    opacity: .11; mix-blend-mode: overlay;
+  }
+  .frame .vg { position: absolute; inset: 0; background: linear-gradient(178deg, rgba(8,9,11,.1) 0%, transparent 30%, rgba(8,9,11,.9) 92%); }
+  .frame .sym {
+    position: absolute; inset-inline: 0; top: 30%; text-align: center;
+    font-family: var(--mono); font-weight: 300; font-size: 34px;
+    color: rgba(233,231,226,.9); mix-blend-mode: soft-light;
+    transition: opacity .18s;
+  }
+  .fr:hover .sym { opacity: .3; }
+  .frame .cap2 {
+    position: absolute; inset-inline: 0; bottom: .55rem; padding: 0 .55rem; text-align: center;
+    font-family: var(--display); font-size: 9.5px; font-weight: 700; font-stretch: 118%;
+    letter-spacing: .22em; text-transform: uppercase; color: rgba(233,231,226,.95);
+  }
+  /* status marker: filled = open to anyone, lock = Access, hollow = not published */
+  .mk {
+    position: absolute; top: .5rem; inset-inline-start: .5rem; z-index: 3;
+    width: 7px; height: 7px; border: 1px solid rgba(233,231,226,.85);
+  }
+  .mk.open { background: var(--chalk); }
+  .mk.lock {
+    width: auto; height: auto; border: 0; top: .42rem;
+    color: rgba(233,231,226,.85); line-height: 0;
+  }
+  .mk.lock svg { display: block; width: 11px; height: 11px; }
+  .info {
+    position: absolute; bottom: .45rem; inset-inline-end: .45rem; z-index: 4;
+    width: 20px; height: 20px; border: 1px solid rgba(233,231,226,.35); border-radius: 50%;
+    background: rgba(8,9,11,.55); color: var(--chalk); cursor: pointer;
+    display: grid; place-items: center; font-family: var(--mono); font-size: 10px;
+    opacity: 0; transition: opacity .16s, background .16s;
+  }
+  .fr:hover .info, .info:focus-visible { opacity: 1; }
+  .info:hover { background: var(--slate2); }
+  .openhint {
+    position: absolute; inset: 0; z-index: 3; display: grid; place-items: center;
+    opacity: 0; transition: opacity .18s;
+    font-family: var(--mono); font-size: 10.5px; letter-spacing: .18em;
+    text-transform: uppercase; color: var(--chalk);
+  }
+  .fr:hover .openhint, .frame:focus-visible .openhint { opacity: 1; }
+
+  .fr .cap { margin-top: .5rem; }
+  .fr .cap b { display: block; font-size: 12.5px; font-weight: 600; color: var(--chalk); letter-spacing: -.005em; }
+  .fr .cap span {
+    display: block; margin-top: .1rem; font-family: var(--mono); font-size: 10px; color: var(--ash);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  /* under-exposed: nothing to open */
+  .fr.shut .em, .fr.shut .gr { filter: brightness(.66) contrast(.9); }
+  .fr.shut:hover .em, .fr.shut:hover .gr { filter: brightness(.82) contrast(.94); }
+  .fr.shut .cap2 { color: rgba(233,231,226,.55); }
+  .fr.shut .mk { border-color: rgba(233,231,226,.5); }
+  .fr.shut .mk.lock { color: rgba(233,231,226,.5); }
+
+  /* ── results ───────────────────────────────────────────── */
+  .results { padding: 0 var(--pad) 2rem; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(152px, 1fr)); gap: 1.6rem .85rem; }
+  .grid .fr { width: auto; }
+  .empty { padding: 3.5rem 0; color: var(--ash); font-family: var(--mono); font-size: 13px; }
+  .empty b { color: var(--chalk); font-weight: 400; }
+  .empty p { margin-top: .5rem; font-size: 11.5px; color: var(--dust); }
+
+  /* ── sheet ─────────────────────────────────────────────── */
+  .backdrop {
+    position: fixed; inset: 0; z-index: 120; background: rgba(6,7,9,.86);
+    display: grid; place-items: start center; padding: 8vh 1rem 3rem; overflow-y: auto;
+    animation: fade .15s ease;
+  }
+  @keyframes fade { from { opacity: 0 } to { opacity: 1 } }
+  .sheet {
+    width: min(660px, 100%); background: var(--carbon); border: 1px solid var(--edge2);
+    animation: rise .2s cubic-bezier(.2,.7,.3,1);
+  }
+  @keyframes rise { from { transform: translateY(10px); opacity: 0 } to { transform: none; opacity: 1 } }
+  .sheet .top { display: flex; gap: 1.4rem; padding: 1.5rem; position: relative; }
+  .sheet .mini { width: 118px; flex: none; }
+  .sheet .mini .frame { cursor: default; }
+  .sheet .info2 { flex: 1; min-width: 0; }
+  .sheet h3 { font-size: 21px; font-weight: 700; font-stretch: 108%; letter-spacing: -.015em; }
+  .sheet .facts {
+    display: flex; align-items: center; gap: .5rem; flex-wrap: wrap; margin-top: .5rem;
+    font-family: var(--mono); font-size: 10.5px; color: var(--ash); letter-spacing: .04em;
+  }
+  .sheet .long { margin-top: 1rem; font-size: 14px; color: var(--pewter); white-space: pre-wrap; line-height: 1.62; }
+  .chips { display: flex; gap: .35rem; flex-wrap: wrap; margin-top: 1.1rem; }
+  .chip {
+    font-family: var(--mono); font-size: 10px; color: var(--ash); letter-spacing: .04em;
+    border: 1px solid var(--edge); padding: .16rem .45rem;
+  }
+  .gate {
+    margin-top: 1.1rem; font-family: var(--mono); font-size: 11px; color: var(--ash);
+    border-inline-start: 1px solid var(--edge2); padding-inline-start: .75rem; line-height: 1.6;
+  }
+  .acts { display: flex; gap: .5rem; flex-wrap: wrap; padding: 0 1.5rem 1.5rem; }
+  .btn {
+    font-family: var(--mono); font-size: 11.5px; letter-spacing: .08em; text-transform: uppercase;
+    cursor: pointer; padding: .55rem 1rem; border: 1px solid var(--edge2);
+    background: transparent; color: var(--pewter); transition: color .15s, border-color .15s, background .15s;
+  }
+  .btn:hover { color: var(--chalk); border-color: var(--chalk); }
+  .btn.primary { background: var(--chalk); border-color: var(--chalk); color: var(--pitch); font-weight: 500; }
+  .btn.primary:hover { background: #fff; border-color: #fff; color: var(--pitch); }
+  .close {
+    position: absolute; top: 1rem; inset-inline-end: 1rem; z-index: 6;
+    width: 26px; height: 26px; border: 1px solid var(--edge2); background: none;
+    color: var(--pewter); cursor: pointer; display: grid; place-items: center; font-size: 12px;
+  }
+  .close:hover { color: var(--chalk); border-color: var(--chalk); }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
+    .lt:hover .go { transform: none; }
+  }
+
+  @media (max-width: 760px) {
+    :root { --rail: 52px; --pad: 1rem; }
+    .head { margin: 1.9rem 0 .85rem; }
+    .head h2 { font-size: 11.5px; letter-spacing: .17em; }
+    .launch { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+    .lt { padding: .8rem .8rem .85rem; }
+    .lt .nm { font-size: 14px; }
+    .fr { width: 124px; }
+    .sheet .top { flex-direction: column; gap: 1.1rem; }
+    .sheet .mini { width: 100px; }
+    .bar { padding-top: 1.2rem; }
+  }
+</style>
+</head>
+<body>
+
+<aside class="rail" id="rail"></aside>
+
+<div class="shell" id="shell">
+  <div class="bar">
+    <div class="search">
+      <input id="q" type="search" autocomplete="off" spellcheck="false"
+             placeholder="Search titles, hosts, stack" aria-label="Search the library">
+      <button class="clr" id="clr" aria-label="Clear search" hidden>✕</button>
+      <span class="hint" id="hint" aria-hidden="true">/</span>
+    </div>
+  </div>
+
+  <!-- One main landmark wraps both views, so switching views never leaves the
+       page without one. The heading is for screen readers; the page's visible
+       title is the section head below it. -->
+  <main>
+    <h1 class="sr-only">raceus.co.il library</h1>
+
+    <div id="home">
+      <div class="head">
+        <h2>Open now</h2>
+        <span class="rule"></span>
+        <span class="count"><b id="launch-count">0</b></span>
+      </div>
+      <div class="launch" id="launch"></div>
+      <div id="rows"></div>
+    </div>
+
+    <div id="browse" hidden>
+      <div class="head">
+        <h2 id="browse-label">Results</h2>
+        <span class="rule"></span>
+        <span class="count"><b id="browse-count">0</b></span>
+      </div>
+      <div class="results" id="results"></div>
+    </div>
+  </main>
+</div>
+
+<div id="sheet-root"></div>
+
+<script type="module" src="/app.js"></script>
+</body>
+</html>
