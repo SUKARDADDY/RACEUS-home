@@ -17,7 +17,8 @@ Every card is one object in `public/catalog.json`.
 | `title` | display name |
 | `name` | slug shown in the detail sheet |
 | `plate` | the word printed across the poster, Latin characters only |
-| `sym` | monogram behind the plate |
+| `logo` | mark to draw on the plate; the file is `public/logos/<logo>.svg` |
+| `brand` | the mark's own colour, used only in the detail sheet |
 | `tone` | 0 to 1 exposure of the print, set by eye for rhythm across a row |
 | `group` | `work` or `services`, which row it sits in |
 | `tier` | `open`, `access`, `service` or `private` |
@@ -27,6 +28,31 @@ Every card is one object in `public/catalog.json`.
 | `long` | the detail sheet body, `\n\n` between paragraphs |
 | `stack` | the chips in the detail sheet |
 | `repo` | optional source link |
+
+## Logos
+
+Every card has a mark in `public/logos/`. They are plain SVGs on a 32 by 32 grid
+that paint with `currentColor` and carry no background, so one CSS `color`
+decides how they read:
+
+- **On the plates and the launch tiles they are monochrome.** The site has no
+  colour, and exposure is what tells you whether a card opens. Eleven brand
+  palettes in one grid would take that job away from brightness.
+- **In the detail sheet the mark gets its own colour**, from the card's `brand`
+  field. One card at a time, nothing to scan, so the brand can speak.
+
+They are applied as CSS masks rather than `<img>`, which is what makes a single
+file work in both places. The fill sits behind an `@supports` guard: with no
+mask support the mark is absent rather than a solid block.
+
+Five marks came from the projects themselves, redrawn as single-colour paths:
+the portfolio's prompt chevron, sukarplan's sheet, sukartask's ring and check,
+the chat bridge's speech bubble, and T3 Code's wordmark. The other six are new.
+
+To add or change one, drop a 32 by 32 SVG in `public/logos/`, use
+`fill="currentColor"` or `stroke="currentColor"` and no background rectangle,
+then point the card's `logo` field at its filename. Check it at 20 pixels
+before you commit: at plate size a mark either reads or it does not.
 
 The tier decides everything a card does.
 

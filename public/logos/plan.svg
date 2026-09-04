@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32" role="img" aria-label="plan">
+  <!-- plan sheet with an accent spine, from sukarplan/scripts/gen-icons.py -->
+  <rect x="8.5" y="5" width="15" height="22" rx="2" fill="none" stroke="currentColor" stroke-width="2"/>
+  <path d="M10.6 6.4 V25.6" stroke="currentColor" stroke-width="3.2" stroke-linecap="round"/>
+  <path d="M15 12 H21 M15 16.5 H20 M15 21 H21" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+</svg>

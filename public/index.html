@@ -235,13 +235,39 @@
     opacity: .11; mix-blend-mode: overlay;
   }
   .frame .vg { position: absolute; inset: 0; background: linear-gradient(178deg, rgba(8,9,11,.1) 0%, transparent 30%, rgba(8,9,11,.9) 92%); }
-  .frame .sym {
-    position: absolute; inset-inline: 0; top: 30%; text-align: center;
-    font-family: var(--mono); font-weight: 300; font-size: 34px;
-    color: rgba(233,231,226,.9); mix-blend-mode: soft-light;
+  /* The mark is a CSS mask filled with currentColor, so one `color` decides
+     whether it reads monochrome on a plate or in its own brand in the sheet.
+     External <img> could not do that, and inlining eleven SVGs twice could. */
+  .frame .logo {
+    position: absolute; left: 50%; top: 30%; transform: translateX(-50%);
+    width: 38px; height: 38px;
+    color: rgba(233,231,226,.92);
+    -webkit-mask: var(--logo) center / contain no-repeat;
+    mask: var(--logo) center / contain no-repeat;
+    /* a plate's key light can land right behind the mark, and chalk on a
+       near-white highlight is invisible; the shadow keeps it readable on
+       both the lit and the unlit half of its own plate. */
+    filter: drop-shadow(0 1px 3px rgba(6,7,9,.75));
     transition: opacity .18s;
   }
-  .fr:hover .sym { opacity: .3; }
+  .fr:hover .logo { opacity: .3; }
+  /* a mark on each launch tile, so the strip is scannable without reading */
+  /* The fill lives behind @supports on purpose: without mask support,
+     `background-color` alone would paint a solid chalk block on every plate.
+     Better to show no mark than a wrong one. */
+  @supports (mask-image: url("a")) or (-webkit-mask-image: url("a")) {
+    .frame .logo, .lt .ltlogo { background-color: currentColor; }
+  }
+
+  .lt .ltlogo {
+    position: absolute; top: .95rem; inset-inline-start: 2.1rem;
+    width: 13px; height: 13px;
+    color: var(--dust);
+    -webkit-mask: var(--logo) center / contain no-repeat;
+    mask: var(--logo) center / contain no-repeat;
+    transition: color .16s;
+  }
+  .lt:hover .ltlogo, .lt:focus-visible .ltlogo { color: var(--chalk); }
   .frame .cap2 {
     position: absolute; inset-inline: 0; bottom: .55rem; padding: 0 .55rem; text-align: center;
     font-family: var(--display); font-size: 9.5px; font-weight: 700; font-stretch: 118%;
