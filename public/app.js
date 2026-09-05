@@ -93,11 +93,11 @@ function plateHtml(item) {
 /* A mask mark is drawn in the project's own colour wherever the plate appears,
    on the poster and in the detail sheet, so a card looks the same in both. Pass
    `brand` false for a surface that wants the mark quiet, like the launch strip.
-   A few projects ship a full-colour logo that has to keep its own colours;
-   those render as an image and never take a `color`. */
+   A card with `logoImage` ships a mark that is already more than one colour, so
+   it loads as a file and the page never tints it. */
 function logoHtml(item, cls, brand) {
-  if (item.logoMode === 'image') {
-    return `<img class="${cls} img" src="logos/${esc(item.logo)}.png" alt="" aria-hidden="true">`;
+  if (item.logoImage) {
+    return `<img class="${cls} img" src="logos/${esc(item.logoImage)}" alt="" aria-hidden="true">`;
   }
   return `<span class="${cls}"${brand && item.brand ? ` style="color:${esc(item.brand)}"` : ''} ` +
     `data-logo="${esc(item.logo)}" aria-hidden="true"></span>`;
