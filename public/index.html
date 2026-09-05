@@ -235,11 +235,11 @@
     opacity: .11; mix-blend-mode: overlay;
   }
   .frame .vg { position: absolute; inset: 0; background: linear-gradient(178deg, rgba(8,9,11,.1) 0%, transparent 30%, rgba(8,9,11,.9) 92%); }
-  /* The mark is a CSS mask filled with currentColor, so one `color` decides
-     whether it reads monochrome on a plate or in its own brand in the sheet.
-     External <img> could not do that, and inlining ten SVGs twice could.
-     A `.img` mark opts out: it is a third-party logo that keeps its own
-     colours, so it takes the box and the shadow and nothing else. */
+  /* The mark is a CSS mask filled with currentColor, so the card can hand it
+     the project's own colour and the same file still reads quiet in grey on
+     the launch strip. External <img> could not do that, and inlining ten SVGs
+     twice could. A `.img` mark opts out: it is a third-party logo that keeps
+     its own colours, so it takes the box and the shadow and nothing else. */
   .frame .logo {
     position: absolute; left: 50%; top: 30%; transform: translateX(-50%);
     width: 38px; height: 38px;

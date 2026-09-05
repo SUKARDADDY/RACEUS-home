@@ -18,8 +18,8 @@ Every card is one object in `public/catalog.json`.
 | `name` | slug shown in the detail sheet |
 | `plate` | the word printed across the poster, Latin characters only |
 | `logo` | mark to draw on the plate; the file is `public/logos/<logo>.svg` |
-| `logoMode` | omit for a mask mark; `"image"` loads `public/logos/<logo>.png` as-is |
-| `brand` | the mask's colour in the detail sheet; omit it for an `image` mark |
+| `logoImage` | omit for a mask mark; a filename here loads `public/logos/<logoImage>` as-is |
+| `brand` | the mask's colour on the plate and in the sheet; omit it for an `image` mark |
 | `tone` | 0 to 1 exposure of the print, set by eye for rhythm across a row |
 | `group` | `work` or `services`, which row it sits in |
 | `tier` | `open`, `access`, `service` or `private` |
@@ -32,23 +32,28 @@ Every card is one object in `public/catalog.json`.
 
 ## Logos
 
-Every card has a mark in `public/logos/`. Nine of them are plain SVGs on a 32 by
-32 grid that paint with `currentColor` and carry no background, so one CSS
+Every card has a mark in `public/logos/`. Eight of them are plain SVGs on a 32
+by 32 grid that paint with `currentColor` and carry no background, so one CSS
 `color` decides how they read:
 
-- **On the plates and the launch tiles they are monochrome.** The site has no
-  colour, and exposure is what tells you whether a card opens. Ten brand
-  palettes in one grid would take that job away from brightness.
-- **In the detail sheet the mark gets its own colour**, from the card's `brand`
-  field. One card at a time, nothing to scan, so the brand can speak.
+- **Wherever the plate appears, the mark is the project's own colour**, from the
+  card's `brand` field. The poster on the home row and the small plate in the
+  detail sheet are the same drawing in the same colour, so a card does not
+  change identity when you open it.
+- **On the launch tiles the mark stays grey**, brightening to chalk on hover.
+  That strip is for hitting a target fast, not for looking at, and six brand
+  colours in one narrow row would fight the numbers you actually aim with.
 
-Those nine are applied as CSS masks rather than `<img>`, which is what makes a
+Exposure is still what tells you whether a card opens: a closed card's plate is
+printed down, its caption is dimmer and its marker is hollow. That is a
+brightness signal, so the colour on the mark does not compete with it.
+
+Those eight are applied as CSS masks rather than `<img>`, which is what makes a
 single file work in both places. The fill sits behind an `@supports` guard: with
-no mask support the mark is absent rather than a solid block. The tenth, T3
-Code's, is a third-party logo that keeps its own colours, so it loads as an
-image and skips all of this.
+no mask support the mark is absent rather than a solid block. The other two keep
+their own colours and load as images, skipping all of this.
 
-Six of the ten are the project's own logo, taken from the project's own repo.
+Seven of the ten are the project's own logo, taken from the project's own repo.
 Where the real mark knocks a shape out of a solid field, the SVG uses an inner
 `<mask>` so the hole is real transparency and survives the CSS mask.
 
@@ -59,27 +64,34 @@ Where the real mark knocks a shape out of a solid field, the SVG uses an inner
 | `ccb` | speech bubble, three dots | `claude-chat-bridge/web/icons/icon-512.png`, traced |
 | `sukartask` | check knocked out of a disc | `sukartask/scripts/gen-icons.ts`, same numbers |
 | `plan` | sheet with a spine | `sukarplan/scripts/gen-icons.py`, same numbers |
+| `sukarfleet` | six peers around an accent hub | `sukarfleet-tray/brand/icon-reduced.svg`, used unmodified |
 | `t3` | the T3 Code app icon itself | shipped PNG, used unmodified |
 
 The two generated from a script are exact: the SVG uses the radii and offsets
 the generator computes, so the mark here and the mark the app ships are the same
 drawing at a different size.
 
-T3 Code is somebody else's product, so its logo is not redrawn at all. The card
-sets `"logoMode": "image"` and the page loads `logos/t3.png`, the icon the app
-ships, in its own colours. An image mark takes the same box and the same drop
-shadow as a mask mark and nothing else: no fill, no tint, no `brand` field.
+**Two marks are already more than one colour, so the page does not tint them.**
+Those cards set `logoImage` and the file loads as-is: T3 Code's shipped app icon,
+and sukarfleet's primary mark, whose light hexagon and accent hub only read as a
+hierarchy because they are two colours. An image mark takes the same box and the
+same drop shadow as a mask mark and nothing else, and it carries no `brand`
+field, since there is nothing to tint. sukarfleet ships several variants and its
+own brand notes assign them by size: `icon-reduced.svg` is the 24 to 48 pixel UI
+mark, and the plate draws at 38. The primary mark was tried first and its spokes
+turned to mud at that size.
 
-Four cards have no logo to reuse, because those projects have never had one:
-`bugtracker`, `workspace`, `sukarfleet` and `ssh`. Their marks are original and
-say something about the project instead. If any of the four grows a real logo,
-replace the file and delete the invented one.
+Three cards have no logo to reuse, because those projects have never had one:
+`bugtracker`, `workspace` and `ssh`. Their marks are original and say something
+about the project instead. If any of the three grows a real logo, replace the
+file and delete the invented one.
 
 Brand colours live in the card's `brand` field in `catalog.json`, and nowhere
 else. They come from what the app actually shows today. `#8b9cff` is the accent
 constant in sukarplan's generator; `#884ab5` is the dominant pixel of the chat
 bridge icon; sukartask is `#ffd60a`, the `--accent` its stylesheet sets, not the
-green its own icon generator still draws.
+green its own icon generator still draws. A card with a `logoImage` has no
+`brand`, because its mark already carries its own.
 
 To add or change one, drop a 32 by 32 SVG in `public/logos/`, use
 `fill="currentColor"` or `stroke="currentColor"` and no background rectangle,
@@ -99,8 +111,9 @@ under-exposed, clicking opens the detail sheet.
 **`private`.** Described but not published. Hollow marker, under-exposed,
 clicking opens the detail sheet.
 
-Brightness is the status channel. There is no colour on the page, so exposure
-alone tells you what is reachable. An `open` or `access` card also carries a
+Brightness is the status channel. The only colour on the page is each project's
+own mark, which says who a card is and never what it does, so exposure alone
+still tells you what is reachable. An `open` or `access` card also carries a
 small `i` button for its detail sheet, and joins the launch strip at the top of
 the page, numbered in catalogue order.
 
