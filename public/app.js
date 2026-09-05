@@ -85,10 +85,20 @@ function plateHtml(item, brand) {
   return (
     `<div class="em" style="background:${emulsion(item.tone, vary(item.id), !isShut(item))}"></div>` +
     `<div class="gr"></div><div class="vg"></div>` +
-    `<div class="logo"${brand ? ` style="color:${esc(item.brand)}"` : ''} ` +
-      `data-logo="${esc(item.logo)}" aria-hidden="true"></div>` +
+    logoHtml(item, 'logo', brand) +
     `<div class="cap2">${esc(item.plate)}</div>`
   );
+}
+
+/* Most marks are monochrome masks the page tints. A few projects ship a
+   full-colour logo that has to stay its own colours, so those render as an
+   image and never take a `color`. `cls` is the caller's positioning class. */
+function logoHtml(item, cls, brand) {
+  if (item.logoMode === 'image') {
+    return `<img class="${cls} img" src="logos/${esc(item.logo)}.png" alt="" aria-hidden="true">`;
+  }
+  return `<span class="${cls}"${brand && item.brand ? ` style="color:${esc(item.brand)}"` : ''} ` +
+    `data-logo="${esc(item.logo)}" aria-hidden="true"></span>`;
 }
 
 function markerHtml(item) {
@@ -351,7 +361,7 @@ function renderHome() {
     a.rel = 'noopener';
     a.innerHTML =
       `<span class="n">${i + 1}${it.tier === 'access' ? lockSvg(11) : ''}</span>` +
-      `<span class="ltlogo" data-logo="${esc(it.logo)}" aria-hidden="true"></span>` +
+      logoHtml(it, 'ltlogo') +
       `<span class="go" aria-hidden="true">↗</span>` +
       `<span class="nm">${esc(it.title)}</span>` +
       `<span class="hs">${esc(it.host)}</span>`;

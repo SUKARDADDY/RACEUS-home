@@ -237,7 +237,9 @@
   .frame .vg { position: absolute; inset: 0; background: linear-gradient(178deg, rgba(8,9,11,.1) 0%, transparent 30%, rgba(8,9,11,.9) 92%); }
   /* The mark is a CSS mask filled with currentColor, so one `color` decides
      whether it reads monochrome on a plate or in its own brand in the sheet.
-     External <img> could not do that, and inlining eleven SVGs twice could. */
+     External <img> could not do that, and inlining ten SVGs twice could.
+     A `.img` mark opts out: it is a third-party logo that keeps its own
+     colours, so it takes the box and the shadow and nothing else. */
   .frame .logo {
     position: absolute; left: 50%; top: 30%; transform: translateX(-50%);
     width: 38px; height: 38px;
@@ -256,7 +258,12 @@
      `background-color` alone would paint a solid chalk block on every plate.
      Better to show no mark than a wrong one. */
   @supports (mask-image: url("a")) or (-webkit-mask-image: url("a")) {
-    .frame .logo, .lt .ltlogo { background-color: currentColor; }
+    .frame .logo:not(.img), .lt .ltlogo:not(.img) { background-color: currentColor; }
+  }
+  /* An image mark has its own pixels: no fill, no mask, no tint, and it must
+     never be stretched, so the box crops nothing and adds nothing. */
+  .frame .logo.img, .lt .ltlogo.img {
+    background: none; -webkit-mask: none; mask: none; object-fit: contain;
   }
 
   .lt .ltlogo {

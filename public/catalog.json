@@ -65,27 +65,6 @@
     ]
   },
   {
-    "id": "assistant",
-    "title": "Hebrew AI Assistant",
-    "name": "ai-assistant",
-    "plate": "HEBREW",
-    "logo": "assistant",
-    "brand": "#4f9cf7",
-    "tone": 0.36,
-    "group": "work",
-    "tier": "private",
-    "host": null,
-    "url": null,
-    "blurb": "Natural-Hebrew command layer inside a POS back-office.",
-    "long": "DokoPoint. Customers run reports and manage products by asking, in Hebrew. A self-hosted Gemma 4 serves the whole customer base. The capability comes from prompt and tool design rather than from a hosted frontier API.",
-    "stack": [
-      "Gemma 4",
-      "Self-hosted",
-      "Hebrew NLU",
-      "Tool design"
-    ]
-  },
-  {
     "id": "workspace",
     "title": "Agent Workspace",
     "name": "agent-workspace",
@@ -153,7 +132,7 @@
     "name": "sukartask",
     "plate": "TASKS",
     "logo": "sukartask",
-    "brand": "#00a884",
+    "brand": "#ffd60a",
     "tone": 0.5,
     "group": "work",
     "tier": "access",
@@ -190,9 +169,9 @@
     "id": "t3",
     "title": "T3 Code",
     "name": "t3-code",
-    "plate": "T3",
+    "plate": "CODE",
     "logo": "t3",
-    "brand": "#c3c8d2",
+    "logoMode": "image",
     "tone": 0.8,
     "group": "services",
     "tier": "access",
