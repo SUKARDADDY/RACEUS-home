@@ -45,9 +45,33 @@ They are applied as CSS masks rather than `<img>`, which is what makes a single
 file work in both places. The fill sits behind an `@supports` guard: with no
 mask support the mark is absent rather than a solid block.
 
-Five marks came from the projects themselves, redrawn as single-colour paths:
-the portfolio's prompt chevron, sukarplan's sheet, sukartask's ring and check,
-the chat bridge's speech bubble, and T3 Code's wordmark. The other six are new.
+Seven of the eleven are the project's own logo, taken from the project's own
+repo. Where the real mark knocks a shape out of a solid field, the SVG uses an
+inner `<mask>` so the hole is real transparency and survives the CSS mask.
+
+| card | mark | where it came from |
+|---|---|---|
+| `terminal` | prompt chevron and cursor bar | `raceus-portfolio/public/favicon.svg`, path copied |
+| `saas` | fork and knife | the platform's own `favicon.svg`, path copied |
+| `assistant` | D on a disc | the POS assistant extension's `icons/icon128.png`, traced |
+| `ccb` | speech bubble, three dots | `claude-chat-bridge/web/icons/icon-512.png`, traced |
+| `sukartask` | check knocked out of a disc | `sukartask/scripts/gen-icons.ts`, same numbers |
+| `plan` | sheet with a spine | `sukarplan/scripts/gen-icons.py`, same numbers |
+| `t3` | T3 wordmark | the T3 Code app icon, third party, already achromatic |
+
+The two generated from a script are exact: the SVG uses the radii and offsets
+the generator computes, so the mark here and the mark the app ships are the same
+drawing at a different size.
+
+Four cards have no logo to reuse, because those projects have never had one:
+`bugtracker`, `workspace`, `sukarfleet` and `ssh`. Their marks are original and
+say something about the project instead. If any of the four grows a real logo,
+replace the file and delete the invented one.
+
+Brand colours live in the card's `brand` field in `catalog.json`, and nowhere
+else. They come from the same sources as the marks. `#00a884` and `#8b9cff` are
+the accent constants in the two generator scripts, `#884ab5` and `#4f9cf7` are
+the dominant pixel colour in the two PNG icons.
 
 To add or change one, drop a 32 by 32 SVG in `public/logos/`, use
 `fill="currentColor"` or `stroke="currentColor"` and no background rectangle,
