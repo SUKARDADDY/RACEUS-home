@@ -19,7 +19,7 @@ Every card is one object in `public/catalog.json`.
 | `plate` | the word printed across the poster, Latin characters only |
 | `logo` | mark to draw on the plate; the file is `public/logos/<logo>.svg` |
 | `logoMode` | omit for a mask mark; `"image"` loads `public/logos/<logo>.png` as-is |
-| `brand` | the mask's colour in the detail sheet; omit it for an `image` mark |
+| `brand` | the mask's colour on the plate and in the sheet; omit it for an `image` mark |
 | `tone` | 0 to 1 exposure of the print, set by eye for rhythm across a row |
 | `group` | `work` or `services`, which row it sits in |
 | `tier` | `open`, `access`, `service` or `private` |
@@ -36,11 +36,17 @@ Every card has a mark in `public/logos/`. Nine of them are plain SVGs on a 32 by
 32 grid that paint with `currentColor` and carry no background, so one CSS
 `color` decides how they read:
 
-- **On the plates and the launch tiles they are monochrome.** The site has no
-  colour, and exposure is what tells you whether a card opens. Ten brand
-  palettes in one grid would take that job away from brightness.
-- **In the detail sheet the mark gets its own colour**, from the card's `brand`
-  field. One card at a time, nothing to scan, so the brand can speak.
+- **Wherever the plate appears, the mark is the project's own colour**, from the
+  card's `brand` field. The poster on the home row and the small plate in the
+  detail sheet are the same drawing in the same colour, so a card does not
+  change identity when you open it.
+- **On the launch tiles the mark stays grey**, brightening to chalk on hover.
+  That strip is for hitting a target fast, not for looking at, and six brand
+  colours in one narrow row would fight the numbers you actually aim with.
+
+Exposure is still what tells you whether a card opens: a closed card's plate is
+printed down, its caption is dimmer and its marker is hollow. That is a
+brightness signal, so the colour on the mark does not compete with it.
 
 Those nine are applied as CSS masks rather than `<img>`, which is what makes a
 single file work in both places. The fill sits behind an `@supports` guard: with
@@ -99,8 +105,9 @@ under-exposed, clicking opens the detail sheet.
 **`private`.** Described but not published. Hollow marker, under-exposed,
 clicking opens the detail sheet.
 
-Brightness is the status channel. There is no colour on the page, so exposure
-alone tells you what is reachable. An `open` or `access` card also carries a
+Brightness is the status channel. The only colour on the page is each project's
+own mark, which says who a card is and never what it does, so exposure alone
+still tells you what is reachable. An `open` or `access` card also carries a
 small `i` button for its detail sheet, and joins the launch strip at the top of
 the page, numbered in catalogue order.
 
