@@ -79,13 +79,26 @@ function emulsion(tone, v, lit) {
 /* stable per-project composition, so a plate always looks the same */
 const vary = (id) => id.split('').reduce((a, c) => a + c.charCodeAt(0), 0);
 
-function plateHtml(item) {
+/* `brand` is only ever true in the detail sheet: the plates stay monochrome
+   so exposure remains the one thing that says what you can open. */
+function plateHtml(item, brand) {
   return (
     `<div class="em" style="background:${emulsion(item.tone, vary(item.id), !isShut(item))}"></div>` +
     `<div class="gr"></div><div class="vg"></div>` +
-    `<div class="sym">${esc(item.sym)}</div>` +
+    logoHtml(item, 'logo', brand) +
     `<div class="cap2">${esc(item.plate)}</div>`
   );
+}
+
+/* Most marks are monochrome masks the page tints. A few projects ship a
+   full-colour logo that has to stay its own colours, so those render as an
+   image and never take a `color`. `cls` is the caller's positioning class. */
+function logoHtml(item, cls, brand) {
+  if (item.logoMode === 'image') {
+    return `<img class="${cls} img" src="logos/${esc(item.logo)}.png" alt="" aria-hidden="true">`;
+  }
+  return `<span class="${cls}"${brand && item.brand ? ` style="color:${esc(item.brand)}"` : ''} ` +
+    `data-logo="${esc(item.logo)}" aria-hidden="true"></span>`;
 }
 
 function markerHtml(item) {
@@ -114,6 +127,14 @@ const clrBtn = $('#clr');
 const hintEl = $('#hint');
 const homeEl = $('#home');
 const launchEl = $('#launch');
+
+/* CSS masks want a url(), and building one per element by hand in every
+   template is how a path typo ships silently. One pass, one place. */
+function paintLogos(root) {
+  root.querySelectorAll('[data-logo]').forEach((el) => {
+    el.style.setProperty('--logo', `url("logos/${el.dataset.logo}.svg")`);
+  });
+}
 const rowsEl = $('#rows');
 const browseEl = $('#browse');
 const resultsEl = $('#results');
@@ -245,7 +266,7 @@ function openSheet(item) {
     `<div class="sheet" role="dialog" aria-modal="true" aria-label="${esc(item.title)}">` +
       `<div class="top">` +
         `<button type="button" class="close" data-close aria-label="Close">✕</button>` +
-        `<div class="mini"><div class="frame">${plateHtml(item)}</div></div>` +
+        `<div class="mini"><div class="frame">${plateHtml(item, true)}</div></div>` +
         `<div class="info2">` +
           `<h3>${esc(item.title)}</h3>` +
           `<div class="facts">${facts.map((f) => `<span>${f}</span>`).join('')}</div>` +
@@ -262,6 +283,7 @@ function openSheet(item) {
   });
 
   sheetRoot.appendChild(backdrop);
+  paintLogos(backdrop);
   /* aria-modal only tells a screen reader the rest is out of play. `inert`
      makes it true for the keyboard too, so Tab cannot walk out of the sheet
      and land on the page behind the backdrop. */
@@ -339,6 +361,7 @@ function renderHome() {
     a.rel = 'noopener';
     a.innerHTML =
       `<span class="n">${i + 1}${it.tier === 'access' ? lockSvg(11) : ''}</span>` +
+      logoHtml(it, 'ltlogo') +
       `<span class="go" aria-hidden="true">↗</span>` +
       `<span class="nm">${esc(it.title)}</span>` +
       `<span class="hs">${esc(it.host)}</span>`;
@@ -354,6 +377,7 @@ function renderHome() {
     section.appendChild(rowEl(items));
     rowsEl.appendChild(section);
   });
+  paintLogos(homeEl);
 }
 
 function renderBrowse() {
@@ -378,6 +402,7 @@ function renderBrowse() {
       `<p>Try a hostname like plan, or a stack like D1.</p>`;
     resultsEl.appendChild(empty);
   }
+  paintLogos(browseEl);
 }
 
 /* The box is a view of `q`, not a second source of truth. Every path that

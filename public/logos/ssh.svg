@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32" role="img" aria-label="ssh">
+  <!-- a gateway, barred: this one opens for a service token, never for a person -->
+  <path d="M8 25 V16 A8 8 0 0 1 24 16 V25" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+  <path d="M5.5 25 H26.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+  <path d="M11.5 17.5 H20.5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/>
+</svg>
