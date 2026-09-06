@@ -94,17 +94,56 @@
     "logoImage": "sukarfleet.svg",
     "tone": 0.44,
     "group": "work",
-    "tier": "private",
+    "tier": "source",
     "host": null,
     "url": null,
-    "blurb": "Peer-to-peer mesh keeping several machines in sync. 580 tests.",
-    "long": "A peer-to-peer mesh keeping several machines in sync: encrypted transport supervision, git-based replication, presence gossip, sync-health alarms. No central server to lose.",
+    "repo": "https://github.com/SUKARDADDY/sukarfleet",
+    "blurb": "One AI agent across all your machines. Source and releases are public.",
+    "long": "One AI agent across all your machines. A small daemon on each machine keeps the agent's memory, workspace and notes in sync, so it picks up where it left off whichever keyboard you sit at.\n\nIt replicates git repositories rather than copying files, so history survives and a conflict is a real merge. There is no central server to lose.\n\nPublic since September 2026, AGPL-3.0 for the daemon and MIT for the client edges. Linux is the tested platform and runs a real two-machine fleet every day. macOS and Windows are implemented and barely tried, which the project says out loud rather than burying.",
     "stack": [
       "EasyTier",
-      "Git",
+      "Git replication",
       "Tauri tray",
-      "580 tests"
-    ]
+      "AGPL-3.0",
+      "942 tests"
+    ],
+    "release": {
+      "version": "v0.1.0",
+      "date": "2026-09-05",
+      "headline": "The daemon, the mesh transport and the tray console, installed by one command.",
+      "command": "curl -fsSL https://raw.githubusercontent.com/SUKARDADDY/sukarfleet/v0.1.0/install/get.sh | sh",
+      "commandNote": "Debian and Ubuntu. It clones the tag into ~/.local/share/sukarfleet/app and runs the quickstart from that checkout, so the thing installing you is a repository you can read first. Nothing in this stage needs root, and it prints the one command that does.",
+      "platforms": [
+        {
+          "os": "Linux",
+          "arch": "x86_64",
+          "level": "supported",
+          "what": "Tray console",
+          "size": "12 MB",
+          "url": "https://github.com/SUKARDADDY/sukarfleet/releases/download/v0.1.0/sukarfleet-tray-linux-x86_64",
+          "note": "The installer fetches this for you and checks it against a pinned SHA256. Take the file directly to verify that hash yourself, or to put the console on a machine by hand. There is no aarch64 build yet."
+        },
+        {
+          "os": "Windows",
+          "level": "experimental",
+          "what": "Source archive",
+          "url": "https://github.com/SUKARDADDY/sukarfleet/archive/refs/tags/v0.1.0.zip",
+          "note": "Unzip it and double-click install/windows/Add-To-Fleet.cmd. Both stages ran on a Windows 11 VM on release day. The admin lane cannot elevate here because Windows has no sudo, so the installer switches it off and you drive admin from a Linux machine."
+        },
+        {
+          "os": "macOS",
+          "level": "experimental",
+          "what": "Source archive",
+          "url": "https://github.com/SUKARDADDY/sukarfleet/archive/refs/tags/v0.1.0.zip",
+          "note": "The quickstart is systemd-only, so a Mac is a manual install from this archive. Everything except privilege elevation is implemented and nobody on the project owns a Mac to try it on."
+        }
+      ],
+      "links": [
+        { "label": "Release notes", "url": "https://github.com/SUKARDADDY/sukarfleet/releases/tag/v0.1.0" },
+        { "label": "Checksums", "url": "https://github.com/SUKARDADDY/sukarfleet/releases/download/v0.1.0/SHA256SUMS" },
+        { "label": "Source", "url": "https://github.com/SUKARDADDY/sukarfleet" }
+      ]
+    }
   },
   {
     "id": "ccb",
