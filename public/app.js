@@ -1,10 +1,11 @@
 /* raceus.co.il library.
    Vanilla ES module, no build step, no dependencies.
 
-   Four tiers decide everything a card does:
+   Five tiers decide everything a card does:
      open     open to anyone            filled marker, bright, the frame is a link
      access   behind Cloudflare Access  lock marker, bright, the frame is a link
      service  no browser entry point    lock marker, under-exposed, opens the sheet
+     source   public code, no host      hollow marker, under-exposed, opens the sheet
      private  described, not published  hollow marker, under-exposed, opens the sheet
 
    Exposure is the status channel: bright means you can open it. */
@@ -14,6 +15,7 @@ const RAIL = [
   ['open', 'Open now', '<path d="M13 2.5 5 13.5h6l-1 8 8-11h-6z"/>'],
   ['work', 'Work', '<circle cx="12" cy="12" r="9"/><path d="m15.2 8.8-2 4.4-4.4 2 2-4.4z"/>'],
   ['services', 'Services', '<path d="M10 4h4v2.2a1.8 1.8 0 1 0 3.6 0V4H20v4h-1.8a1.8 1.8 0 1 0 0 3.6H20V20h-4.4v-2.2a1.8 1.8 0 1 0-3.6 0V20H4v-4.4h2.2a1.8 1.8 0 1 0 0-3.6H4V8h6z"/>'],
+  ['downloads', 'Downloads', '<path d="M12 3v11.2"/><path d="m7.4 9.8 4.6 4.6 4.6-4.6"/><path d="M4.5 19.5h15"/>'],
 ];
 
 const ROWS = [
@@ -25,12 +27,14 @@ const TIER_LABEL = {
   open: 'open to anyone',
   access: 'behind Cloudflare Access',
   service: 'Access service token only',
+  source: 'public source, no host',
   private: 'not published',
 };
 
 const TIER_GATE = {
   access: 'Behind Cloudflare Access. The link goes straight to the host, so you meet the Cloudflare login before the app does.',
   service: 'No browser entry point. This card documents the connection instead of pretending to open it.',
+  source: 'Public source and public releases, but nothing of it runs on this domain, so there is no host to open. Its files are in the downloads section.',
   private: 'Client or internal work. Described here, with no public link.',
 };
 
@@ -45,7 +49,11 @@ const esc = (s) =>
     ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
 const canOpen = (it) => (it.tier === 'open' || it.tier === 'access') && Boolean(it.url);
-const isShut = (it) => it.tier === 'service' || it.tier === 'private';
+/* `source` is under-exposed with the rest: the project is published, but there
+   is still nothing on this domain to open, and exposure answers that question
+   and no other one. */
+const isShut = (it) =>
+  it.tier === 'service' || it.tier === 'source' || it.tier === 'private';
 
 /* A silver print: cool shadows, warm highlights, exposure set by `tone`.
    Four key-light compositions so the sheet has variety, plus one hard edge
@@ -129,6 +137,7 @@ const clrBtn = $('#clr');
 const hintEl = $('#hint');
 const homeEl = $('#home');
 const launchEl = $('#launch');
+const downloadsEl = $('#downloads');
 
 /* CSS masks want a url(), and building one per element by hand in every
    template is how a path typo ships silently. One pass, one place. */
@@ -242,6 +251,128 @@ function rowEl(items) {
   return row;
 }
 
+/* ── downloads ─────────────────────────────────────────── */
+/* Any card may carry a `release`, and this section is every card that does.
+   The install command comes first because it is the path the project itself
+   recommends; the lanes below it are for taking a file away. A lane whose
+   platform the maintainers do not run prints down, the same signal the plates
+   use, so nobody downloads an untried build without being told. */
+const hasRelease = (it) => Boolean(it.release && it.release.platforms);
+
+/* Both the home view and the Downloads view hold a copy of the block, so the
+   ids that tie a lane to its note have to be unique across both. */
+let laneSeq = 0;
+
+function laneEl(p) {
+  const el = document.createElement(p.url ? 'a' : 'div');
+  el.className = 'lane' + (p.level === 'supported' ? '' : ' exp');
+
+  const noteId = `lane-note-${(laneSeq += 1)}`;
+  const line = [p.what, p.arch, p.size].filter(Boolean).map(esc).join(' · ');
+  el.innerHTML =
+    (p.url ? '<span class="arrow" aria-hidden="true">↓</span>' : '') +
+    `<span class="os">${esc(p.os)}</span>` +
+    `<span class="lvl">${esc(p.level)}</span>` +
+    `<span class="what">${line}</span>` +
+    `<span class="note" id="${noteId}">${esc(p.note)}</span>`;
+
+  if (p.url) {
+    el.href = p.url;
+    el.rel = 'noopener';
+    /* A short name to act on, and the caveat as the description: without the
+       second one a screen reader gets the link and never hears that the build
+       is untried. */
+    el.setAttribute('aria-label', `Download ${p.what} for ${p.os}, ${p.level}`);
+    el.setAttribute('aria-describedby', noteId);
+  }
+  return el;
+}
+
+/* The clipboard is unavailable over plain http and inside some embedded
+   browsers, and there it must not look like it worked. Selecting the command
+   leaves the user one keystroke from copying it, which is the honest fallback. */
+function copyCommand(btn, code, text) {
+  const say = (word) => {
+    btn.textContent = word;
+    btn.dataset.done = '1';
+    window.setTimeout(() => { btn.textContent = 'Copy'; delete btn.dataset.done; }, 1800);
+  };
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(text).then(() => say('Copied'), () => selectCommand(code, say));
+    return;
+  }
+  selectCommand(code, say);
+}
+
+function selectCommand(code, say) {
+  const range = document.createRange();
+  range.selectNodeContents(code);
+  const sel = window.getSelection();
+  sel.removeAllRanges();
+  sel.addRange(range);
+  say('Selected');
+}
+
+function releaseEl(item) {
+  const r = item.release;
+
+  const art = document.createElement('article');
+  art.className = 'rel';
+
+  const meta = [r.version, r.date].filter(Boolean).map(esc).join(' · ');
+  art.innerHTML =
+    '<div class="relhead">' +
+      logoHtml(item, 'relmark', true) +
+      '<div class="relwho">' +
+        `<h3>${esc(item.title)}</h3>` +
+        `<div class="relmeta">${meta}</div>` +
+        (r.headline ? `<p class="relsay">${esc(r.headline)}</p>` : '') +
+      '</div>' +
+    '</div>';
+
+  if (r.command) {
+    const cmd = document.createElement('div');
+    cmd.className = 'cmd';
+    cmd.innerHTML =
+      `<code><span class="sign">$ </span><span class="c">${esc(r.command)}</span></code>` +
+      '<button type="button" class="copy">Copy</button>';
+    const btn = cmd.querySelector('.copy');
+    const code = cmd.querySelector('code .c');
+    btn.setAttribute('aria-label', `Copy the ${item.title} install command`);
+    btn.addEventListener('click', () => copyCommand(btn, code, r.command));
+    art.appendChild(cmd);
+    if (r.commandNote) {
+      const note = document.createElement('p');
+      note.className = 'cmdnote';
+      note.textContent = r.commandNote;
+      art.appendChild(note);
+    }
+  }
+
+  const lanes = document.createElement('div');
+  lanes.className = 'lanes';
+  r.platforms.forEach((p) => lanes.appendChild(laneEl(p)));
+  art.appendChild(lanes);
+
+  if (r.links && r.links.length) {
+    const links = document.createElement('div');
+    links.className = 'rellinks';
+    links.innerHTML = r.links
+      .map((l) => `<a href="${esc(l.url)}" target="_blank" rel="noopener">${esc(l.label)}</a>`)
+      .join('');
+    art.appendChild(links);
+  }
+  return art;
+}
+
+function downloadsEls() {
+  const releases = CATALOG.filter(hasRelease);
+  const wrap = document.createElement('div');
+  wrap.className = 'dls';
+  releases.forEach((it) => wrap.appendChild(releaseEl(it)));
+  return { releases, wrap };
+}
+
 /* ── detail sheet ──────────────────────────────────────── */
 function openSheet(item) {
   lastFocus = document.activeElement;
@@ -256,6 +387,9 @@ function openSheet(item) {
   const acts = [];
   if (canOpen(item)) {
     acts.push(`<a class="btn primary" href="${esc(item.url)}" target="_blank" rel="noopener">Open</a>`);
+  }
+  if (hasRelease(item)) {
+    acts.push('<button type="button" class="btn" data-downloads>Downloads</button>');
   }
   if (item.repo) {
     acts.push(`<a class="btn" href="${esc(item.repo)}" target="_blank" rel="noopener">Source</a>`);
@@ -281,6 +415,7 @@ function openSheet(item) {
     `</div>`;
 
   backdrop.addEventListener('click', (e) => {
+    if (e.target.closest('[data-downloads]')) { closeSheet(); setNav('downloads'); return; }
     if (e.target === backdrop || e.target.closest('[data-close]')) closeSheet();
   });
 
@@ -317,6 +452,7 @@ function matches() {
   if (nav === 'open') pool = pool.filter(canOpen);
   if (nav === 'work') pool = pool.filter((i) => i.group === 'work');
   if (nav === 'services') pool = pool.filter((i) => i.group === 'services');
+  if (nav === 'downloads') pool = pool.filter(hasRelease);
   if (!t) return pool;
   return pool.filter((i) => haystack(i).includes(t));
 }
@@ -370,6 +506,13 @@ function renderHome() {
     launchEl.appendChild(a);
   });
 
+  downloadsEl.replaceChildren();
+  const dl = downloadsEls();
+  if (dl.releases.length) {
+    downloadsEl.appendChild(headEl('Downloads', dl.releases.length, 'downloads'));
+    downloadsEl.appendChild(dl.wrap);
+  }
+
   rowsEl.replaceChildren();
   ROWS.forEach((g) => {
     const items = CATALOG.filter((i) => i.group === g.key);
@@ -386,11 +529,20 @@ function renderBrowse() {
   const found = matches();
   const label = nav === 'open' ? 'Open now'
     : nav === 'services' ? 'Services'
+    : nav === 'downloads' ? 'Downloads'
     : q.trim() ? 'Results' : 'Work';
   $('#browse-label').textContent = label;
   $('#browse-count').textContent = String(found.length);
 
   resultsEl.replaceChildren();
+  /* The Downloads view is the section itself, not a grid of the cards behind
+     it. Searching inside it falls back to the grid, so a query always answers
+     with cards. */
+  if (nav === 'downloads' && !q.trim()) {
+    resultsEl.appendChild(downloadsEls().wrap);
+    paintLogos(browseEl);
+    return;
+  }
   if (found.length) {
     const grid = document.createElement('div');
     grid.className = 'grid';

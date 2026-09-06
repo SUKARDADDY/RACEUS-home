@@ -22,13 +22,14 @@ Every card is one object in `public/catalog.json`.
 | `brand` | the mask's colour on the plate and in the sheet; omit it for an `image` mark |
 | `tone` | 0 to 1 exposure of the print, set by eye for rhythm across a row |
 | `group` | `work` or `services`, which row it sits in |
-| `tier` | `open`, `access`, `service` or `private` |
+| `tier` | `open`, `access`, `service`, `source` or `private` |
 | `host` | hostname, or `null` |
 | `url` | link target, or `null` when nothing opens |
 | `blurb` | one line, used as the caption when there is no host |
 | `long` | the detail sheet body, `\n\n` between paragraphs |
 | `stack` | the chips in the detail sheet |
 | `repo` | optional source link |
+| `release` | optional; puts the project in the downloads section, see below |
 
 ## Logos
 
@@ -44,8 +45,8 @@ by 32 grid that paint with `currentColor` and carry no background, so one CSS
   That strip is for hitting a target fast, not for looking at, and six brand
   colours in one narrow row would fight the numbers you actually aim with.
 
-Exposure is still what tells you whether a card opens: a closed card's plate is
-printed down, its caption is dimmer and its marker is hollow. That is a
+Exposure is still what tells you whether a card opens here: a closed card's
+plate is printed down, its caption is dimmer and its marker is hollow. That is a
 brightness signal, so the colour on the mark does not compete with it.
 
 Those eight are applied as CSS masks rather than `<img>`, which is what makes a
@@ -108,6 +109,11 @@ straight to the host, so you meet the Cloudflare login rather than a fake unlock
 **`service`.** No browser entry point, like the SSH gateway. Lock marker,
 under-exposed, clicking opens the detail sheet.
 
+**`source`.** Public code and public releases, with nothing running on this
+domain. Hollow marker, under-exposed, clicking opens the detail sheet, and the
+sheet's Downloads button jumps to the release block. sukarfleet is the one card
+on this tier: it is published, and there is still nothing here to open.
+
 **`private`.** Described but not published. Hollow marker, under-exposed,
 clicking opens the detail sheet.
 
@@ -121,8 +127,9 @@ the page, numbered in catalogue order.
 
 Append an object to `public/catalog.json`. Nothing else changes.
 
-- Pick a `group` and a `tier`. `open` and `access` need a `url`. `service` and
-  `private` must not have one.
+- Pick a `group` and a `tier`. `open` and `access` need a `url`. `service`,
+  `source` and `private` must not have one. `source` is for a project whose code
+  and releases are public while nothing of it runs on this domain.
 - Keep `plate` in Latin characters. The self-hosted fonts carry the latin subset
   only, so anything else falls back to a system font.
 - Set `tone` by eye against its neighbours. Higher is brighter.
@@ -130,6 +137,40 @@ Append an object to `public/catalog.json`. Nothing else changes.
   `name`, `host`, `blurb` or `stack`.
 
 Order in the file is the order on the page and the order of the launch strip.
+
+## Downloads
+
+A card with a `release` object also gets a block in the downloads section, at the
+foot of the home view and behind the rail's fifth button. Today that is
+sukarfleet and nothing else, and the section disappears entirely if no card
+carries one.
+
+```jsonc
+"release": {
+  "version": "v0.1.0",
+  "date": "2026-09-05",
+  "headline": "one line under the title",
+  "command": "curl -fsSL https://.../get.sh | sh",   // optional
+  "commandNote": "what that command does and what it does not need",
+  "platforms": [
+    { "os": "Linux", "arch": "x86_64", "level": "supported",
+      "what": "Tray console", "size": "12 MB",
+      "url": "https://...", "note": "one paragraph, honest" }
+  ],
+  "links": [ { "label": "Release notes", "url": "https://..." } ]
+}
+```
+
+The install command comes first because it is the route the project itself
+recommends, and the copy button falls back to selecting the text where the
+clipboard API is unavailable. Each platform is one lane. `level` is the word
+the project uses about its own testing, and anything other than `supported`
+prints the lane down, the same exposure signal the plates use: nobody should
+download an untried build without being told it is one.
+
+Sizes and support levels are written by hand, so they are a claim about the
+release named in `version` and not about whatever the tag points at later. When
+the version changes, both change with it.
 
 ## Keys
 

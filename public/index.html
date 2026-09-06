@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>raceus.co.il library</title>
-<meta name="description" content="Every project and service under raceus.co.il, one card each. What is open, what is behind Cloudflare Access, and what is described but not published.">
+<meta name="description" content="Every project and service under raceus.co.il, one card each. What is open, what is behind Cloudflare Access, what you can download, and what is described but not published.">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <meta name="theme-color" content="#0b0c0e">
 <meta name="build-sha" content="__BUILD_SHA__">
@@ -280,7 +280,7 @@
     font-family: var(--display); font-size: 9.5px; font-weight: 700; font-stretch: 118%;
     letter-spacing: .22em; text-transform: uppercase; color: rgba(233,231,226,.95);
   }
-  /* status marker: filled = open to anyone, lock = Access, hollow = not published */
+  /* status marker: filled = open to anyone, lock = Access, hollow = nothing here to open */
   .mk {
     position: absolute; top: .5rem; inset-inline-start: .5rem; z-index: 3;
     width: 7px; height: 7px; border: 1px solid rgba(233,231,226,.85);
@@ -376,6 +376,106 @@
   }
   .close:hover { color: var(--chalk); border-color: var(--chalk); }
 
+  /* ── downloads ─────────────────────────────────────────── */
+  /* A release is a printed sheet, not a card: one block per project, the
+     install command first, then one lane per platform. Exposure carries the
+     same meaning it carries everywhere else on this page. A lane the
+     maintainers actually run prints bright; an untried one prints down. */
+  /* the home view supplies the page gutter; inside the Downloads view the
+     results container has already supplied it */
+  .dls { padding-bottom: 1rem; }
+  #downloads .dls { padding-inline: var(--pad); }
+  .rel { border: 1px solid var(--edge); background: var(--pitch); }
+  .rel + .rel { margin-top: 1rem; }
+  .rel .relhead { display: flex; align-items: flex-start; gap: .85rem; padding: 1.25rem 1.35rem 1.1rem; }
+  .rel .relmark {
+    width: 26px; height: 26px; flex: none; margin-top: .12rem;
+    -webkit-mask: var(--logo) center / contain no-repeat;
+    mask: var(--logo) center / contain no-repeat;
+    filter: drop-shadow(0 1px 3px rgba(6,7,9,.75));
+  }
+  .rel .relmark.img { background: none; -webkit-mask: none; mask: none; object-fit: contain; }
+  .rel .relwho { min-width: 0; }
+  .rel h3 { font-size: 17px; font-weight: 700; font-stretch: 108%; letter-spacing: -.01em; }
+  .rel .relmeta {
+    margin-top: .3rem; font-family: var(--mono); font-size: 10.5px;
+    color: var(--ash); letter-spacing: .06em;
+  }
+  .rel .relsay { margin-top: .55rem; font-size: 13.5px; color: var(--pewter); line-height: 1.55; }
+
+  /* the command is the golden path, so it is the widest thing in the block */
+  .cmd {
+    display: flex; align-items: stretch; gap: 0;
+    margin: 0 1.35rem; border: 1px solid var(--edge2); background: var(--carbon);
+  }
+  .cmd code {
+    flex: 1; min-width: 0; overflow-x: auto; white-space: pre;
+    padding: .7rem .85rem; font-family: var(--mono); font-size: 11.5px;
+    color: var(--chalk); letter-spacing: .01em; scrollbar-width: none;
+  }
+  .cmd code::-webkit-scrollbar { display: none; }
+  .cmd code .sign { color: var(--dust); user-select: none; }
+  .cmd .copy {
+    flex: none; border: 0; border-inline-start: 1px solid var(--edge2);
+    background: transparent; color: var(--pewter); cursor: pointer;
+    padding: 0 .9rem; font-family: var(--mono); font-size: 10px;
+    letter-spacing: .1em; text-transform: uppercase; transition: color .15s, background .15s;
+  }
+  .cmd .copy:hover { color: var(--chalk); background: var(--slate); }
+  .cmd .copy[data-done] { color: var(--chalk); }
+  .cmdnote {
+    margin: .6rem 1.35rem 0; font-family: var(--mono); font-size: 10.5px;
+    color: var(--ash); line-height: 1.65; max-width: 100ch;
+  }
+
+  .lanes {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(232px, 1fr));
+    margin-top: 1.2rem; border-top: 1px solid var(--edge);
+  }
+  .lane {
+    display: block; position: relative; padding: .95rem 1.35rem 1.1rem;
+    border-inline-end: 1px solid var(--edge); transition: background .16s;
+  }
+  .lane:last-child { border-inline-end: 0; }
+  a.lane:hover, a.lane:focus-visible { background: var(--slate); }
+  .lane .os {
+    display: block; font-size: 14.5px; font-weight: 600; color: var(--chalk);
+    letter-spacing: -.005em;
+  }
+  .lane .lvl {
+    display: inline-block; margin-top: .4rem; padding: .12rem .4rem;
+    border: 1px solid var(--edge2); font-family: var(--mono); font-size: 9.5px;
+    letter-spacing: .12em; text-transform: uppercase; color: var(--pewter);
+  }
+  .lane .what {
+    display: block; margin-top: .55rem; font-family: var(--mono); font-size: 10.5px;
+    color: var(--pewter); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .lane .what i { font-style: normal; color: var(--ash); }
+  .lane .note {
+    display: block; margin-top: .5rem; font-family: var(--mono); font-size: 10px;
+    color: var(--ash); line-height: 1.7;
+  }
+  .lane .arrow {
+    position: absolute; top: .95rem; inset-inline-end: 1.35rem;
+    font-family: var(--mono); font-size: 12px; color: var(--dust);
+    transition: transform .18s, color .16s;
+  }
+  a.lane:hover .arrow { color: var(--chalk); transform: translateY(2px); }
+  /* untried: printed down, exactly like a card with nothing to open */
+  .lane.exp .os { color: var(--pewter); }
+  .lane.exp .lvl { color: var(--ash); border-color: var(--edge); }
+  .lane.exp .what { color: var(--ash); }
+
+  .rellinks {
+    display: flex; flex-wrap: wrap; gap: 1.1rem;
+    padding: .85rem 1.35rem .95rem; border-top: 1px solid var(--edge);
+    font-family: var(--mono); font-size: 10.5px; letter-spacing: .06em;
+  }
+  .rellinks a { color: var(--ash); transition: color .15s; }
+  .rellinks a:hover { color: var(--chalk); }
+  .rellinks a::after { content: " \2197"; color: var(--dust); }
+
   @media (prefers-reduced-motion: reduce) {
     * { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
     .lt:hover .go { transform: none; }
@@ -392,6 +492,12 @@
     .sheet .top { flex-direction: column; gap: 1.1rem; }
     .sheet .mini { width: 100px; }
     .bar { padding-top: 1.2rem; }
+    .rel .relhead { padding: 1rem 1rem .9rem; }
+    .cmd, .cmdnote { margin-inline: 1rem; }
+    .lane { padding: .9rem 1rem 1rem; border-inline-end: 0; border-bottom: 1px solid var(--edge); }
+    .lane:last-child { border-bottom: 0; }
+    .lane .arrow { inset-inline-end: 1rem; }
+    .rellinks { padding-inline: 1rem; gap: .9rem; }
   }
 </style>
 </head>
@@ -423,6 +529,7 @@
       </div>
       <div class="launch" id="launch"></div>
       <div id="rows"></div>
+      <div id="downloads"></div>
     </div>
 
     <div id="browse" hidden>
