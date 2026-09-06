@@ -188,7 +188,8 @@
     display: block; margin-top: .15rem; font-family: var(--mono); font-size: 10.5px;
     color: var(--ash); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
   }
-  .lt .go {
+  /* the same corner glyph on a launch tile and on a download lane */
+  .lt .go, .lane .arrow {
     position: absolute; top: .9rem; inset-inline-end: 1rem;
     font-family: var(--mono); font-size: 12px; color: var(--dust);
     transition: transform .18s, color .16s;
@@ -258,11 +259,11 @@
      `background-color` alone would paint a solid chalk block on every plate.
      Better to show no mark than a wrong one. */
   @supports (mask-image: url("a")) or (-webkit-mask-image: url("a")) {
-    .frame .logo:not(.img), .lt .ltlogo:not(.img) { background-color: currentColor; }
+    .frame .logo:not(.img), .lt .ltlogo:not(.img), .rel .relmark:not(.img) { background-color: currentColor; }
   }
   /* An image mark has its own pixels: no fill, no mask, no tint, and it must
      never be stretched, so the box crops nothing and adds nothing. */
-  .frame .logo.img, .lt .ltlogo.img {
+  .frame .logo.img, .lt .ltlogo.img, .rel .relmark.img {
     background: none; -webkit-mask: none; mask: none; object-fit: contain;
   }
 
@@ -394,7 +395,6 @@
     mask: var(--logo) center / contain no-repeat;
     filter: drop-shadow(0 1px 3px rgba(6,7,9,.75));
   }
-  .rel .relmark.img { background: none; -webkit-mask: none; mask: none; object-fit: contain; }
   .rel .relwho { min-width: 0; }
   .rel h3 { font-size: 17px; font-weight: 700; font-stretch: 108%; letter-spacing: -.01em; }
   .rel .relmeta {
@@ -415,14 +415,13 @@
   }
   .cmd code::-webkit-scrollbar { display: none; }
   .cmd code .sign { color: var(--dust); user-select: none; }
-  .cmd .copy {
+  /* the same control as the sheet's buttons, seamed into the command box */
+  .cmd .btn.copy {
     flex: none; border: 0; border-inline-start: 1px solid var(--edge2);
-    background: transparent; color: var(--pewter); cursor: pointer;
-    padding: 0 .9rem; font-family: var(--mono); font-size: 10px;
-    letter-spacing: .1em; text-transform: uppercase; transition: color .15s, background .15s;
+    padding: 0 .9rem; font-size: 10px; letter-spacing: .1em;
   }
-  .cmd .copy:hover { color: var(--chalk); background: var(--slate); }
-  .cmd .copy[data-done] { color: var(--chalk); }
+  .cmd .btn.copy:hover { border-color: var(--edge2); background: var(--slate); }
+  .cmd .btn.copy[data-done] { color: var(--chalk); }
   .cmdnote {
     margin: .6rem 1.35rem 0; font-family: var(--mono); font-size: 10.5px;
     color: var(--ash); line-height: 1.65; max-width: 100ch;
@@ -442,29 +441,24 @@
     display: block; font-size: 14.5px; font-weight: 600; color: var(--chalk);
     letter-spacing: -.005em;
   }
+  /* the sheet's chip, one step brighter unless the lane is printed down */
   .lane .lvl {
     display: inline-block; margin-top: .4rem; padding: .12rem .4rem;
-    border: 1px solid var(--edge2); font-family: var(--mono); font-size: 9.5px;
-    letter-spacing: .12em; text-transform: uppercase; color: var(--pewter);
+    font-size: 9.5px; letter-spacing: .12em; text-transform: uppercase;
   }
+  .lane:not(.exp) .lvl { color: var(--pewter); border-color: var(--edge2); }
   .lane .what {
     display: block; margin-top: .55rem; font-family: var(--mono); font-size: 10.5px;
     color: var(--pewter); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
   }
-  .lane .what i { font-style: normal; color: var(--ash); }
   .lane .note {
     display: block; margin-top: .5rem; font-family: var(--mono); font-size: 10px;
     color: var(--ash); line-height: 1.7;
   }
-  .lane .arrow {
-    position: absolute; top: .95rem; inset-inline-end: 1.35rem;
-    font-family: var(--mono); font-size: 12px; color: var(--dust);
-    transition: transform .18s, color .16s;
-  }
+  .lane .arrow { top: .95rem; inset-inline-end: 1.35rem; }
   a.lane:hover .arrow { color: var(--chalk); transform: translateY(2px); }
   /* untried: printed down, exactly like a card with nothing to open */
   .lane.exp .os { color: var(--pewter); }
-  .lane.exp .lvl { color: var(--ash); border-color: var(--edge); }
   .lane.exp .what { color: var(--ash); }
 
   .rellinks {
