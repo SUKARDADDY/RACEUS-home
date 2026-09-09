@@ -52,6 +52,7 @@
     "tone": 0.55,
     "group": "work",
     "tier": "private",
+    "blur": true,
     "host": null,
     "url": null,
     "blurb": "Government-audited restaurant platform on the Cloudflare edge.",

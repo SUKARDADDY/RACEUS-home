@@ -321,6 +321,12 @@
   .fr.shut .cap2 { color: rgba(233,231,226,.55); }
   .fr.shut .mk { border-color: rgba(233,231,226,.5); }
   .fr.shut .mk.lock { color: rgba(233,231,226,.5); }
+  /* blurred: the plate itself is out of focus, permanently, so hovering
+     the card cannot bring the artwork into focus the way it lifts exposure
+     on other shut cards. */
+  .fr.blurred .frame .em, .fr.blurred .frame .gr { filter: blur(5px) brightness(.66) contrast(.9); }
+  .fr.blurred:hover .frame .em, .fr.blurred:hover .frame .gr { filter: blur(5px) brightness(.66) contrast(.9); }
+  .fr.blurred .frame .logo { filter: blur(3px) drop-shadow(0 1px 3px rgba(6,7,9,.75)); }
 
   /* ── results ───────────────────────────────────────────── */
   .results { padding: 0 var(--pad) 2rem; }

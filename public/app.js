@@ -58,6 +58,11 @@ const canOpen = (it) => (it.tier === 'open' || it.tier === 'access') && Boolean(
    and no other one. */
 const isShut = (it) =>
   it.tier === 'service' || it.tier === 'source' || it.tier === 'private';
+/* A handful of private cards ask for more than under-exposed: the plate
+   itself is blurred, so no amount of hovering brings the artwork into
+   focus. Data-driven, not tier-driven, since most private work is fine
+   described in plain light. */
+const isBlurred = (it) => Boolean(it.blur);
 
 /* A silver print: cool shadows, warm highlights, exposure set by `tone`.
    Four key-light compositions so the sheet has variety, plus one hard edge
@@ -163,7 +168,7 @@ function frameEl(item) {
   const openable = canOpen(item);
 
   const fr = document.createElement('div');
-  fr.className = 'fr' + (isShut(item) ? ' shut' : '');
+  fr.className = 'fr' + (isShut(item) ? ' shut' : '') + (isBlurred(item) ? ' blurred' : '');
 
   const fw = document.createElement('div');
   fw.className = 'fw';
