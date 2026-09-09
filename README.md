@@ -33,7 +33,7 @@ Every card is one object in `public/catalog.json`.
 
 ## Logos
 
-Every card has a mark in `public/logos/`. Eight of them are plain SVGs on a 32
+Every card has a mark in `public/logos/`. Seven of them are plain SVGs on a 32
 by 32 grid that paint with `currentColor` and carry no background, so one CSS
 `color` decides how they read:
 
@@ -49,19 +49,18 @@ Exposure is still what tells you whether a card opens here: a closed card's
 plate is printed down, its caption is dimmer and its marker is hollow. That is a
 brightness signal, so the colour on the mark does not compete with it.
 
-Those eight are applied as CSS masks rather than `<img>`, which is what makes a
+Those seven are applied as CSS masks rather than `<img>`, which is what makes a
 single file work in both places. The fill sits behind an `@supports` guard: with
 no mask support the mark is absent rather than a solid block. The other two keep
 their own colours and load as images, skipping all of this.
 
-Seven of the ten are the project's own logo, taken from the project's own repo.
+Six of the nine are the project's own logo, taken from the project's own repo.
 Where the real mark knocks a shape out of a solid field, the SVG uses an inner
 `<mask>` so the hole is real transparency and survives the CSS mask.
 
 | card | mark | where it came from |
 |---|---|---|
 | `terminal` | prompt chevron and cursor bar | `raceus-portfolio/public/favicon.svg`, path copied |
-| `saas` | fork and knife | the platform's own `favicon.svg`, path copied |
 | `ccb` | speech bubble, three dots | `claude-chat-bridge/web/icons/icon-512.png`, traced |
 | `sukartask` | check knocked out of a disc | `sukartask/scripts/gen-icons.ts`, same numbers |
 | `plan` | sheet with a spine | `sukarplan/scripts/gen-icons.py`, same numbers |
