@@ -43,29 +43,6 @@
     "repo": "https://github.com/SUKARDADDY/bugtracker-mcp"
   },
   {
-    "id": "saas",
-    "title": "Multi-Tenant SaaS",
-    "name": "multi-tenant-saas",
-    "plate": "SAAS",
-    "logo": "saas",
-    "brand": "#667eea",
-    "tone": 0.55,
-    "group": "work",
-    "tier": "private",
-    "blur": true,
-    "host": null,
-    "url": null,
-    "blurb": "Government-audited restaurant platform on the Cloudflare edge.",
-    "long": "Government-approved, continuously audited multi-tenant SaaS on Cloudflare Workers, D1, R2 and Durable Objects. Architected, shipped and operated solo. The fiscal-compliance layer is built in-house rather than bought in.",
-    "stack": [
-      "Workers",
-      "D1",
-      "R2",
-      "Durable Objects",
-      "Fiscal compliance"
-    ]
-  },
-  {
     "id": "workspace",
     "title": "Agent Workspace",
     "name": "agent-workspace",
