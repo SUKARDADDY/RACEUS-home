@@ -420,7 +420,7 @@ function openSheet(item) {
     `<div class="sheet" role="dialog" aria-modal="true" aria-label="${esc(item.title)}">` +
       `<div class="top">` +
         `<button type="button" class="close" data-close aria-label="Close">✕</button>` +
-        `<div class="mini"><div class="frame">${plateHtml(item)}</div></div>` +
+        `<div class="mini${isBlurred(item) ? ' blurred' : ''}"><div class="frame">${plateHtml(item)}</div></div>` +
         `<div class="info2">` +
           `<h3>${esc(item.title)}</h3>` +
           `<div class="facts">${facts.map((f) => `<span>${f}</span>`).join('')}</div>` +
